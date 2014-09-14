@@ -4,3 +4,4 @@ TOOLDIR = $(GALILEO_SDK)/hardware/tools/sysroots/x86_64-pokysdk-linux/usr/bin/i5
 CC = $(TOOLDIR)/i586-poky-linux-uclibc-gcc
 CXX = $(TOOLDIR)/i586-poky-linux-uclibc-g++
 AR = $(TOOLDIR)/i586-poky-linux-uclibc-ar
+GALILEO_LIB = Wire

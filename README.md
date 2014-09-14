@@ -13,7 +13,8 @@ Files
 
 Usage
 -----
-Just list your sources files in the ``SRC`` variables of the Makefile.
+Just list your sources files in the ``SRC`` variables of the Makefile and the
+libraries in ``config.mk``.
 
 - `make`: (hopefully) build the project
 - `make upload`: upload the sketch on the board
