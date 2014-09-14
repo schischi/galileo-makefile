@@ -15,9 +15,9 @@ CFLAGS = $(LIB_INCLUDE) \
 		 --sysroot=$(GALILEO_SDK)/hardware/tools/sysroots/i586-poky-linux-uclibc \
 		 -Os -Wl,--gc-sections -march=i586
 CXXFLAGS = -std=c++0x
-LDFLAGS = -Llib/ -lm -lpthread -lclas2
+LDFLAGS = -Llib/ -lm -lpthread
 
-all: core_lib dep
+$(TARGET): core_lib dep
 	$(CXX) $(ARCH_FLAGS) $(CFLAGS) $(CXXFLAGS) -o $(TARGET) $(SRC) $(LIB_TARGET) $(LDFLAGS)
 
 upload:
