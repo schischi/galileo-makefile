@@ -3,31 +3,58 @@
 ################
 include config.mk
 
+#############################
+### BOARD SPECIFIC CONFIG ###
+#############################
+ifneq (,$(findstring galileo_v,$(BOARD)))
+    BOARD_PATH = x86
+    SYSROOT = $(GALILEO_SDK)/hardware/tools/sysroots/i586-poky-linux-uclibc
+    TOOLDIR = $(GALILEO_SDK)/hardware/tools/sysroots/x86_64-pokysdk-linux/usr/bin/i586-poky-linux-uclibc
+    CC = $(TOOLDIR)/i586-poky-linux-uclibc-gcc
+    CXX = $(TOOLDIR)/i586-poky-linux-uclibc-g++
+    AR = $(TOOLDIR)/i586-poky-linux-uclibc-ar
+    ifeq ($(BOARD),galileo_v1)
+        VARIANT = galileo_fab_d
+    else ifeq ($(BOARD),galileo_v2)
+        VARIANT = galileo_fab_g
+    else
+        $(error Board $(BOARD) not supported (yet))
+    endif
+else ifeq ($(BOARD),edison)
+    BOARD_PATH = edison
+    VARIANT = edison_fab_c
+    SYSROOT = $(GALILEO_SDK)/hardware/tools/edison/sysroots/core2-32-poky-linux
+    TOOLDIR = $(GALILEO_SDK)/hardware/tools/edison/sysroots/x86_64-pokysdk-linux/usr/bin/i586-poky-linux
+    CC = $(TOOLDIR)/i586-poky-linux-gcc
+    CXX = $(TOOLDIR)/i586-poky-linux-g++
+    AR = $(TOOLDIR)/i586-poky-linux-ar
+else
+    $(error Board $(BOARD) not supported (yet))
+endif
+RM = rm -rf
+
 #####################
 ### USER'S SKETCH ###
 #####################
-TARGET = sketch.elf
-SRC = src/main.cc
 ARCH_FLAGS = -m32 -march=i586
 CFLAGS = $(LIB_INCLUDE) \
-		 -I$(GALILEO_SDK)/hardware/arduino/x86/cores/arduino \
-		 -I$(GALILEO_SDK)/hardware/arduino/x86/variants/galileo_fab_d \
-		 --sysroot=$(GALILEO_SDK)/hardware/tools/sysroots/i586-poky-linux-uclibc \
+		 -I$(GALILEO_SDK)/hardware/arduino/$(BOARD_PATH)/cores/arduino \
+		 -I$(GALILEO_SDK)/hardware/arduino/$(BOARD_PATH)/variants/$(VARIANT) \
+		 --sysroot=$(SYSROOT) \
 		 -Os -Wl,--gc-sections -march=i586
-CXXFLAGS = -std=c++0x
-LDFLAGS = -Llib/ -lm -lpthread
+LDFLAGS += -Llib/ -lm -lpthread
 
 $(TARGET): core_lib dep
 	$(CXX) $(ARCH_FLAGS) $(CFLAGS) $(CXXFLAGS) -o $(TARGET) $(SRC) $(LIB_TARGET) $(LDFLAGS)
 
 upload:
-	@sh $(GALILEO_SDK)/hardware/arduino/x86/tools/izmir/clupload_linux.sh \
+	@sh $(GALILEO_SDK)/hardware/arduino/$(BOARD_PATH)/tools/izmir/clupload_linux.sh \
 		$(GALILEO_SDK)/hardware/tools \
 		$(TARGET) \
 		$(SERIAL)
 
 clean:
-	$(RM) -rf $(TARGET)
+	$(RM) $(TARGET)
 
 #############################
 ### Galileo core librarie ###
@@ -35,16 +62,16 @@ clean:
 LIB_DIR = lib
 LIB_TARGET = $(LIB_DIR)/core.a
 LIB_CFLAGS = -m32 -march=i586 \
-	     -I$(GALILEO_SDK)/hardware/arduino/x86/cores/arduino \
-		 -I$(GALILEO_SDK)/hardware/arduino/x86/variants/galileo_fab_d \
-		 --sysroot=$(GALILEO_SDK)/hardware/tools/sysroots/i586-poky-linux-uclibc \
+	     -I$(GALILEO_SDK)/hardware/arduino/$(BOARD_PATH)/cores/arduino \
+		 -I$(GALILEO_SDK)/hardware/arduino/$(BOARD_PATH)/variants/$(VARIANT) \
+		 --sysroot=$(SYSROOT) \
 		 -fno-exceptions -ffunction-sections -fdata-sections -fpermissive \
-		 -MMD -D__ARDUINO_X86__ -Xassembler -march=i586 \
+		 -MMD -D__ARDUINO_$(BOARD_PATH)__ -Xassembler -march=i586 \
 		-c -g -Os -w
 LIB_CXXFLAGS = $(LIB_CFLAGS)
 
-CORES_SRC_PATH = $(GALILEO_SDK)/hardware/arduino/x86/cores/arduino/
-VARIANT_SRC_PATH = $(GALILEO_SDK)/hardware/arduino/x86/variants/galileo_fab_d/
+CORES_SRC_PATH = $(GALILEO_SDK)/hardware/arduino/$(BOARD_PATH)/cores/arduino/
+VARIANT_SRC_PATH = $(GALILEO_SDK)/hardware/arduino/$(BOARD_PATH)/variants/$(VARIANT)/
 
 CORES_C_SRC = $(wildcard $(CORES_SRC_PATH)/*.c)
 CORES_CXX_SRC = $(wildcard $(CORES_SRC_PATH)/*.cpp)
@@ -74,13 +101,13 @@ $(OBJ_VARIANT): $(OBJ_DIR)/%.o : $(VARIANT_SRC_PATH)/%.cpp
 	$(CXX) $(LIB_CXXFLAGS) -o $@ $<
 
 distclean: clean
-	$(RM) -rf $(OBJ_DIR)
-	$(RM) -rf $(LIB_DIR)
+	$(RM) $(OBJ_DIR)
+	$(RM) $(LIB_DIR)
 
 #########################
 ### Galileo libraries ###
 #########################
-LIB_PATH = $(GALILEO_SDK)/hardware/arduino/x86/libraries
+LIB_PATH = $(GALILEO_SDK)/hardware/arduino/$(BOARD_PATH)/libraries
 LIB_SRC = $(wildcard $(LIB_PATH)/*/*.cpp)
 LIB_LIST = $(notdir $(wildcard $(LIB_PATH)/*))
 LIB_OBJ = $(LIB_SRC:$(LIB_PATH)/%.cpp=$(OBJ_DIR)/%.o)

@@ -1,7 +1,10 @@
 GALILEO_SDK = /opt/galileo
 SERIAL = /dev/ttyACM0
-TOOLDIR = $(GALILEO_SDK)/hardware/tools/sysroots/x86_64-pokysdk-linux/usr/bin/i586-poky-linux-uclibc
-CC = $(TOOLDIR)/i586-poky-linux-uclibc-gcc
-CXX = $(TOOLDIR)/i586-poky-linux-uclibc-g++
-AR = $(TOOLDIR)/i586-poky-linux-uclibc-ar
+SRC = src/main.cc
+TARGET = sketch.elf
 GALILEO_LIB = Wire
+CXXFLAGS = -std=c++0x
+LDFLAGS = 
+BOARD = galileo_v1
+#BOARD = galileo_v2
+#BOARD = edison

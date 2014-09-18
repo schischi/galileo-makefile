@@ -15,3 +15,4 @@ rm arduino-linux64-1.0.3.tgz
 cp -r arduino-1.5.3-Intel.1.0.3/* $INSTALL_DIR/
 rm -rf arduino-1.5.3-Intel.1.0.3
 $INSTALL_DIR/hardware/tools/install_script.sh
+$INSTALL_DIR/hardware/tools/edison/install_script.sh
