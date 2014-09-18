@@ -2,7 +2,7 @@ Galileo Makefile
 ================
 This Makefile is intended to replace the ugly IDE.
 The Makefile also compile the Galileo library, thus offering the same
-features of the IDE.
+features as the IDE.
 
 Files
 ------
@@ -13,8 +13,8 @@ Files
 
 Usage
 -----
-Just list your sources files in the ``SRC`` variables of the Makefile and the
-libraries in ``config.mk``.
+Edit the `config.mk` file to list your source files, the lib you depend on and
+the board version.
 
 - `make`: (hopefully) build the project
 - `make upload`: upload the sketch on the board
